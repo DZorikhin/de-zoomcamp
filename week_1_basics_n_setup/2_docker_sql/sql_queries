@@ -1,0 +1,42 @@
+SELECT pulocationid
+FROM yellow_taxi_trips
+LIMIT 10;
+
+-- Question 3
+SELECT COUNT(index)
+FROM yellow_taxi_trips
+WHERE date_part('day', tpep_pickup_datetime) = 15
+
+-- Question 4
+SELECT MAX(tip_amount), date_part('day', tpep_pickup_datetime)
+FROM yellow_taxi_trips
+GROUP BY date_part('day', tpep_pickup_datetime)
+ORDER BY 1 DESC
+
+-- Question 5
+SELECT taxi_zone_lookup.zone, COUNT(taxi_zone_lookup.zone)
+FROM (
+SELECT yellow_taxi_trips.tpep_pickup_datetime as Day, taxi_zone_lookup.zone as PickUp_Zone, yellow_taxi_trips.dolocationid
+FROM yellow_taxi_trips
+INNER JOIN taxi_zone_lookup
+	ON yellow_taxi_trips.pulocationid = taxi_zone_lookup.locationid
+WHERE date_part('day', yellow_taxi_trips.tpep_pickup_datetime) = 14
+AND taxi_zone_lookup.zone = 'Central Park') t
+INNER JOIN taxi_zone_lookup
+	ON t.dolocationid = taxi_zone_lookup.locationid
+GROUP BY taxi_zone_lookup.zone
+ORDER BY 2 DESC
+
+-- Question 6
+SELECT AVG(t.total), t.pickup_zone, taxi_zone_lookup.zone as dropoff_zone
+FROM (
+SELECT yellow_taxi_trips.total_amount as total, taxi_zone_lookup.zone as PickUp_Zone, yellow_taxi_trips.dolocationid
+FROM yellow_taxi_trips
+INNER JOIN taxi_zone_lookup
+	ON yellow_taxi_trips.pulocationid = taxi_zone_lookup.locationid
+) t
+INNER JOIN taxi_zone_lookup
+	ON t.dolocationid = taxi_zone_lookup.locationid
+GROUP BY t.total, t.pickup_zone, taxi_zone_lookup.zone
+ORDER BY 1 DESC
+LIMIT 10;

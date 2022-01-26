@@ -37,6 +37,7 @@ docker run -it \
   dpage/pgadmin4
 
 URL="https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv"
+URL2="https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv"
 
 python ingest_data.py \
  --user=root \
@@ -59,3 +60,16 @@ taxi_ingest:v001 \
  --db=ny_taxi \
  --table_name=yellow_taxi_trips \
  --url=${URL}
+
+docker build -t taxi_ingest:v002 .
+
+docker run -it \
+ --network=pg-network \
+taxi_ingest:v002 \
+ --user=root \
+ --password=root \
+ --host=pg-database \
+ --port=5432 \
+ --db=ny_taxi \
+ --table_name=taxi_zone_lookup \
+ --url=${URL2}
